@@ -1,54 +1,55 @@
 import React, { useEffect, useState } from 'react'
 import ItemDetail from './ItemDatail'
-import {products} from '../ItemList'
 import { useParams } from 'react-router-dom';
+import ScaleLoader from "react-spinners/ScaleLoader";
+import { db } from '../../services/firebaseConfig'
+import {  collection, doc,getDoc} from 'firebase/firestore'
+
 
 const ItemDetailContainer = () => {
 
   const[items,setItems] = useState({});
+  const [loading,setloading] = useState(true);
   const{detail} = useParams();
+
+
   useEffect(()=>{
-    
-     const getItems = () => {
-  
-      return new Promise((res,rej) => {
-        const producFilter = products.find((prop) => prop.id === Number(detail) )
-        const ref = detail ?  producFilter : products;
-        setTimeout(() => {
-          res(ref)
-        }, 2000);
-        
-      });
-     };
-  
-  
-     getItems()
-       .then((res) => {
-        setItems(res)
-        console.log (res)
-       }) 
-       .catch((rej) => {
-        console .log(rej)
-      });
-  
-    // fetch('https://fakestoreapi.com/products')
-    //   .then((res) =>{ return res.json()})
-    //   .then((res) =>{
-    //     setItems(res)
-    //     console.log(res)
-    //   })
-    //   .catch((error)=>{
-    //     console.log(error)
-    //   });
+
+    const collectionProd = collection(db,'productos')
+    const ref = doc(collectionProd,detail);
+
+    getDoc(ref)
+    .then((res) => {
+          setItems({
+            id: res.id,...res.data(),
+          })
+         }) 
+         .catch((rej) => {
+        })
+        .finally(()=>{
+            setloading(false)
+        });
       
   },[detail])
   
-
-  return (
-    <div>
+  if(loading){
+    return (
+      <div className='MainContainer'>
+        <ScaleLoader
+          color="#343a40"
+          size={30}
+        />
+      </div>
+    )
+  }
+    return (
+      <div>
         <ItemDetail prodcut={items} />
-    </div>
-  )
+    
+      </div>
+    )
+  
+  
 }
 
 export default ItemDetailContainer

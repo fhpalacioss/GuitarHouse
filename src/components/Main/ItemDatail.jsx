@@ -1,12 +1,20 @@
-import React from 'react'
+import React,{ useState,useContext } from 'react'
 import ItemCount from '../ItemCount'
-import { NavLink } from 'react-router-dom'
-import { products } from '../ItemList'
+import { Link, NavLink } from 'react-router-dom'
+import {CardContext} from '../../context/CardContext'
 
 const ItemDetail = ({prodcut}) => {
-    function add(value){
-        console.log(`hola tengo ${value}`)
-     }
+    
+  const [show, setShow] = useState(true)
+
+  const {addCart} = useContext(CardContext)
+
+  const onAdd = (qty)=>{
+    console.log(qty);
+    setShow(false);
+    addCart(prodcut,qty)
+  }
+
   return (
     <div className='detailContainer'>
         <div className='detailImg'>
@@ -29,8 +37,12 @@ const ItemDetail = ({prodcut}) => {
             <h4 className='priceDetails'>${prodcut.price}</h4>
             <p className='pdescription'>{prodcut.description}</p>
         </div>
-        <ItemCount stock={10} initial={0} onAdd={add}/>
-
+        {
+          show
+          ? <ItemCount stock={prodcut.stock} initial={0}  onAdd={onAdd}/>
+          : <Link className="btn btn-dark"  to='/cart'>Ir al carrito</Link>
+        }
+        
          <div className="video-responsive">
             <iframe
               width="500"
